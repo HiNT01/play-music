@@ -1,5 +1,13 @@
 const $ = document.querySelector.bind(document)
 const $$ = document.querySelectorAll.bind(document)
+const audio = $('#audio')
+const player = $('.player')
+const imgSong =  $('.cd-thumb')
+const songName =  $('header h2')
+const cd = $('.cd')
+const progress = $('#progress')
+const btnNext = $('.btn-next')
+const btnPrev= $('.btn-prev')
 // songs
 const songs = [
     {
@@ -203,14 +211,22 @@ const app = {
         })
     },
     loadCurrentSong : function () {
-        $('#audio').src = this.currentSong.path
-        $('.cd-thumb').style = 'background-image: url(' + this.currentSong.image + ')'
-        $('header h2').textContent = this.currentSong.name
+       audio.src = this.currentSong.path
+       imgSong.style = 'background-image: url(' + this.currentSong.image + ')'
+       songName.textContent = this.currentSong.name
     }
     ,
     handleEvents : function () {
         const _this = this
-        const cd = $('.cd')
+        const imgSongAnimate = imgSong.animate([
+            {
+                transform : 'rotate(360deg)'
+            }
+        ],{
+            duration : 10000, // 10s
+            iterations : Infinity
+        })
+        imgSongAnimate.pause()
         const cdWidth = cd.offsetWidth
         //xu ly scroll list
         document.onscroll = function () {
@@ -226,23 +242,61 @@ const app = {
         const play = $('.btn-toggle-play')
         play.onclick = function () {
             if (_this.isPlaying) {
-                $('#audio').pause()
+               audio.pause()
             }else {
-                $('#audio').play()
+               audio.play()
             }
         }
         // audio play
-        $('#audio').onplay = function () {
+       audio.onplay = function () {
             _this.isPlaying = true
-            $('.player').classList.toggle('playing')
+           player.classList.add('playing')
+           imgSongAnimate.play()
         }
         // audio pause
-        $('#audio').onpause = function () {
+       audio.onpause = function () {
             _this.isPlaying = false
-            $('.player').classList.remove('playing')
-
+           player.classList.remove('playing')
+           imgSongAnimate.pause()
         }
-
+        // tien do bai hat thay doi
+        audio.ontimeupdate = function () {
+            if (audio.duration != NaN) {
+                let percent = Math.floor(audio.currentTime*100 / audio.duration)
+                console.log(percent)
+                progress.value = percent
+            }
+        }
+        //xu ly tua
+        progress.onchange = function (e) {
+            let seektime = e.target.value * audio.duration / 100
+            audio.currentTime = seektime
+        }
+        // next 
+        btnNext.onclick =  function  (){
+           _this.nextSong()
+           audio.play()
+           player.classList.add('playing')
+           imgSongAnimate.play()
+        } 
+        // prev
+        btnPrev.onclick =  function  (){
+            _this.prevSong()  
+         } 
+    },
+    nextSong : function () {
+        this.currentIndex++
+        if(this.currentIndex >= this.songs.length){
+            this.currentIndex = 0
+        }
+        this.loadCurrentSong()
+    },
+    prevSong : function () {
+        this.currentIndex--
+        if(this.currentIndex < 0 ){
+            this.currentIndex = this.songs.length - 1
+        }
+        this.loadCurrentSong()
     },
     start : function () {
         // dinh nghia gia tri mac dinh
