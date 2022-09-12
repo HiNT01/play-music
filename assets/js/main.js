@@ -232,14 +232,13 @@ const app = {
          } 
          //random
         btnRandom.onclick = function () {
-            _this.isRandom = !_this.isRandom
+            _this.isRandom = !_this.config.isRandom
             btnRandom.classList.toggle('active',_this.isRandom)
             _this.setConfig('isRandom',_this.isRandom)
         }
          //repeat
          btnRepeat.onclick = function () {
-            
-            _this.isRepeat = !_this.isRepeat
+            _this.isRepeat = !_this.config.isRepeat
             btnRepeat.classList.toggle('active', _this.isRepeat)
             _this.setConfig('isRepeat',_this.isRepeat)
         }
